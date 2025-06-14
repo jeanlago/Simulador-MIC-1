@@ -28,4 +28,4 @@ router.post('/breakpoint/remove', mic1Controller.removeBreakpoint);
 
 router.post('/binary', mic1Controller.toBinary);
 
-export default router; 
+export default router;

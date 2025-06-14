@@ -1,17 +1,17 @@
-import { 
-  ProcessorState, 
-  Registers, 
-  MIC1Instruction, 
+import {
+  ProcessorState,
+  Registers,
+  MIC1Instruction,
   ExecutionResult,
-  Instruction 
+  Instruction
 } from '../types/mic1.types';
 import { parseInstruction } from '../utils/binary.utils';
 
 export class MIC1Processor {
   private state: ProcessorState;
-  private readonly MEMORY_SIZE = 4096; 
-  private readonly STACK_BASE = 4095; 
-  
+  private readonly MEMORY_SIZE = 4096;
+  private readonly STACK_BASE = 4095;
+
   constructor() {
     this.state = this.initializeState();
   }
@@ -21,7 +21,7 @@ export class MIC1Processor {
       registers: {
         PC: 0,
         AC: 0,
-        SP: this.STACK_BASE,
+        SP: 4095,
         IR: 0,
         TIR: 0,
         MAR: 0,
@@ -31,7 +31,15 @@ export class MIC1Processor {
       stack: [],
       running: false,
       cycleCount: 0,
+
+      // NOVOS ------------------------------
+      aluOperation: 'IDLE',
+      aluInputs: { A: 0, B: 0 },
+      aluResult: 0,
+      lastMicroInstruction: '',
+      bus: { from: '', to: '' },
     };
+
   }
 
   reset(): void {
@@ -40,10 +48,10 @@ export class MIC1Processor {
 
   loadProgram(program: string[], startAddress: number = 0): void {
     let address = startAddress;
-    
+
     for (const line of program) {
       if (line.trim() === '') continue;
-      
+
       try {
         const { instruction, operand } = parseInstruction(line);
         this.state.memory[address] = this.encodeInstructionForMemory(instruction, operand);
@@ -130,117 +138,167 @@ export class MIC1Processor {
   }
 
   private executeInstruction(instruction: MIC1Instruction): void {
-    const { opcode, operand = 0 } = instruction;
-    
-    switch (opcode) {
-      case Instruction.LODD:
-        this.state.registers.AC = this.state.memory[operand];
-        break;
-        
-      case Instruction.STOD:
-        this.state.memory[operand] = this.state.registers.AC;
-        break;
-        
-      case Instruction.ADDD:
-        this.state.registers.AC += this.state.memory[operand];
-        break;
-        
-      case Instruction.SUBD:
-        this.state.registers.AC -= this.state.memory[operand];
-        break;
-        
-      case Instruction.JPOS:
-        if (this.state.registers.AC > 0) {
-          this.state.registers.PC = operand - 1; 
-        }
-        break;
-        
-      case Instruction.JZER:
-        if (this.state.registers.AC === 0) {
-          this.state.registers.PC = operand - 1;
-        }
-        break;
-        
-      case Instruction.JUMP:
-        this.state.registers.PC = operand - 1;
-        break;
-        
-      case Instruction.LOCO:
-        this.state.registers.AC = operand;
-        break;
-        
-      case Instruction.LODL:
-        const localAddr = this.state.registers.SP + operand;
-        this.state.registers.AC = this.state.memory[localAddr];
-        break;
-        
-      case Instruction.STOL:
-        const storeAddr = this.state.registers.SP + operand;
-        this.state.memory[storeAddr] = this.state.registers.AC;
-        break;
-        
-      case Instruction.ADDL:
-        const addAddr = this.state.registers.SP + operand;
-        this.state.registers.AC += this.state.memory[addAddr];
-        break;
-        
-      case Instruction.SUBL:
-        const subAddr = this.state.registers.SP + operand;
-        this.state.registers.AC -= this.state.memory[subAddr];
-        break;
-        
-      case Instruction.JNEG:
-        if (this.state.registers.AC < 0) {
-          this.state.registers.PC = operand - 1;
-        }
-        break;
-        
-      case Instruction.JNZE:
-        if (this.state.registers.AC !== 0) {
-          this.state.registers.PC = operand - 1;
-        }
-        break;
-        
-      case Instruction.CALL:
-        this.push(this.state.registers.PC + 1);
-        this.state.registers.PC = operand - 1;
-        break;
-        
-      case Instruction.PSHI:
-        break;
-        
-      case Instruction.POPI:
-        break;
-        
-      case Instruction.PUSH:
-        this.push(this.state.registers.AC);
-        break;
-        
-      case Instruction.POP:
-        this.state.registers.AC = this.pop();
-        break;
-        
-      case Instruction.RETN:
-        this.state.registers.PC = this.pop() - 1;
-        break;
-        
-      case Instruction.SWAP:
-        const top = this.pop();
-        const second = this.pop();
-        this.push(top);
-        this.push(second);
-        break;
-        
-      case Instruction.INSP:
-        this.state.registers.SP += operand;
-        break;
-        
-      case Instruction.DESP:
-        this.state.registers.SP -= operand;
-        break;
+  const { opcode, operand = 0 } = instruction;
+  this.state.bus = { from: 'MBR', to: 'IR' };
+
+  /* --- valor-padrão antes de cada instrução --- */
+  this.setALU('IDLE', 0, 0, 0);
+  console.log('[BACK-ALU]', this.state.aluOperation);
+
+  switch (opcode) {
+
+    /* ========== MOVIMENTAÇÃO DE DADOS ========== */
+    case Instruction.LODD: {
+    const value = this.state.memory[operand];
+    this.state.registers.AC = value;
+    this.setALU('MOV', value, 0, value);
+    this.state.bus = { from: `MEM[${operand}]`, to: 'AC' };
+    break;
+  }
+
+    case Instruction.STOD: {
+      const value = this.state.registers.AC;
+      this.state.memory[operand] = value;
+      this.setALU('MOV', value, 0, value);
+      break;
     }
-    
-    this.state.lastInstruction = instruction;
+
+    case Instruction.LOCO: {
+      this.state.registers.AC = operand;
+      this.setALU('MOV', operand, 0, operand);
+      break;
+    }
+
+    case Instruction.LODL: {
+      const addr = this.state.registers.SP + operand;
+      const value = this.state.memory[addr];
+      this.state.registers.AC = value;
+      this.setALU('MOV', value, 0, value);
+      break;
+    }
+
+    case Instruction.STOL: {
+      const addr = this.state.registers.SP + operand;
+      const value = this.state.registers.AC;
+      this.state.memory[addr] = value;
+      this.setALU('MOV', value, 0, value);
+      break;
+    }
+
+    /* ========== OPERAÇÕES ARITMÉTICAS ========== */
+    case Instruction.ADDD: {
+      const a = this.state.registers.AC;
+      const b = this.state.memory[operand];
+      const r = a + b;
+      this.state.registers.AC = r;
+      this.setALU('ADD', a, b, r);
+      break;
+    }
+
+    case Instruction.SUBD: {
+      const a = this.state.registers.AC;
+      const b = this.state.memory[operand];
+      const r = a - b;
+      this.state.registers.AC = r;
+      this.setALU('SUB', a, b, r);
+      break;
+    }
+
+    case Instruction.ADDL: {
+      const addr = this.state.registers.SP + operand;
+      const a = this.state.registers.AC;
+      const b = this.state.memory[addr];
+      const r = a + b;
+      this.state.registers.AC = r;
+      this.setALU('ADD', a, b, r);
+      break;
+    }
+
+    case Instruction.SUBL: {
+      const addr = this.state.registers.SP + operand;
+      const a = this.state.registers.AC;
+      const b = this.state.memory[addr];
+      const r = a - b;
+      this.state.registers.AC = r;
+      this.setALU('SUB', a, b, r);
+      break;
+    }
+
+    /* ========== DESVIO / CONTROLE DE FLUXO ========== */
+    case Instruction.JPOS:
+      if (this.state.registers.AC > 0) this.state.registers.PC = operand - 1;
+      break;
+
+    case Instruction.JZER:
+      if (this.state.registers.AC === 0) this.state.registers.PC = operand - 1;
+      break;
+
+    case Instruction.JNEG:
+      if (this.state.registers.AC < 0) this.state.registers.PC = operand - 1;
+      break;
+
+    case Instruction.JNZE:
+      if (this.state.registers.AC !== 0) this.state.registers.PC = operand - 1;
+      break;
+
+    case Instruction.JUMP:
+      this.state.registers.PC = operand - 1;
+      break;
+
+    case Instruction.CALL:
+      this.push(this.state.registers.PC + 1);
+      this.state.registers.PC = operand - 1;
+      break;
+
+    case Instruction.RETN:
+      this.state.registers.PC = this.pop() - 1;
+      break;
+
+    /* ========== PILHA ========== */
+    case Instruction.PUSH:
+      this.push(this.state.registers.AC);
+      break;
+
+    case Instruction.POP:
+      this.state.registers.AC = this.pop();
+      break;
+
+    case Instruction.SWAP: {
+      const top = this.pop();
+      const second = this.pop();
+      this.push(top);
+      this.push(second);
+      break;
+    }
+
+    case Instruction.INSP:
+      this.state.registers.SP += operand;
+      break;
+
+    case Instruction.DESP:
+      this.state.registers.SP -= operand;
+      break;
+
+    /* ========== INSTRUÇÕES NÃO IMPLEMENTADAS ========== */
+    case Instruction.PSHI:
+    case Instruction.POPI:
+      /* sem efeito no momento */
+      break;
+
+    default:
+      break;
+  }
+
+  /* -------- grava a microinstrução textual para o frontend -------- */
+  this.state.lastMicroInstruction =
+    operand !== undefined && operand !== 0
+      ? `${Instruction[opcode]} ${operand}`
+      : Instruction[opcode];
+
+    console.log('[DEBUG BACK]', {
+    aluOperation: this.state.aluOperation,
+    lastMicroInstruction: this.state.lastMicroInstruction,
+    });
   }
 
   private push(value: number): void {
@@ -270,14 +328,16 @@ export class MIC1Processor {
       }
 
       this.state.registers.IR = this.state.memory[this.state.registers.PC];
-      
+
       const instruction = this.decodeInstruction(this.state.registers.IR);
-      
+
       this.executeInstruction(instruction);
-      
+
       this.state.registers.PC++;
       this.state.cycleCount++;
 
+      console.log('ALU=', this.state.aluOperation,
+                  'MICRO=', this.state.lastMicroInstruction);
       return {
         success: true,
         state: this.state,
@@ -294,25 +354,25 @@ export class MIC1Processor {
   run(maxCycles: number = 10000): ExecutionResult {
     this.state.running = true;
     let cycles = 0;
-    
+
     while (this.state.running && cycles < maxCycles) {
       const result = this.step();
-      
+
       if (!result.success) {
         this.state.running = false;
         return result;
       }
-      
+
       if (this.state.memory[this.state.registers.PC] === 0) {
         this.state.running = false;
         break;
       }
-      
+
       cycles++;
     }
-    
+
     this.state.running = false;
-    
+
     if (cycles >= maxCycles) {
       return {
         success: false,
@@ -320,7 +380,7 @@ export class MIC1Processor {
         error: `Maximum cycle count (${maxCycles}) exceeded`,
       };
     }
-    
+
     return {
       success: true,
       state: this.state,
@@ -328,7 +388,7 @@ export class MIC1Processor {
   }
 
   getState(): ProcessorState {
-    return { ...this.state };
+    return JSON.parse(JSON.stringify(this.state));  // cópia profunda
   }
 
   setMemory(address: number, value: number): void {
@@ -343,4 +403,11 @@ export class MIC1Processor {
     }
     return 0;
   }
-} 
+
+  private setALU(op: string, a: number, b: number, r: number) {
+    this.state.aluOperation = op;
+    this.state.aluInputs    = { A: a, B: b };
+    this.state.aluResult    = r;
+  }
+
+}

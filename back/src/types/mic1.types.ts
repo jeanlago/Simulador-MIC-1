@@ -45,13 +45,26 @@ export interface Registers {
 
 
 export interface ProcessorState {
+  /* --- estado principal --- */
   registers: Registers;
   memory: number[];
   stack: number[];
   running: boolean;
   cycleCount: number;
-  lastInstruction?: MIC1Instruction;
+
+  /* --- ALU --- */
+  aluOperation: string;
+  aluInputs: { A: number; B: number };
+  aluResult: number;
+
+  /* --- micro-instruções --- */
+  lastInstruction?: MIC1Instruction;      // ← voltou, opcional
+  lastMicroInstruction: string;
+
+  /* --- barramento (opcional) --- */
+  bus?: { from: string; to: string };     // ← só UMA vez, sem duplicar
 }
+
 
 
 export interface ExecutionResult {

@@ -12,7 +12,7 @@ export class MIC1Service {
   private processor: MIC1Processor;
   private debugInfo: DebugInfo;
   private programLines: string[];
-  
+
   constructor() {
     this.processor = new MIC1Processor();
     this.debugInfo = {
@@ -35,7 +35,7 @@ export class MIC1Service {
 
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
-      
+
       // Handle data declarations (format: .data address value)
       if (line.startsWith('.data')) {
         const parts = line.split(/\s+/);
@@ -43,15 +43,15 @@ export class MIC1Service {
           errors.push(`Line ${i + 1}: Invalid data declaration format`);
           continue;
         }
-        
+
         const address = parseInt(parts[1], 10);
         const value = parseInt(parts[2], 10);
-        
+
         if (isNaN(address) || isNaN(value)) {
           errors.push(`Line ${i + 1}: Invalid address or value in data declaration`);
           continue;
         }
-        
+
         data[address] = value;
       } else {
         // Parse instruction
@@ -135,31 +135,31 @@ export class MIC1Service {
       if (!result.success) {
         break;
       }
-      
+
       this.debugInfo.currentLine++;
-      
+
       // Check for breakpoint
       const breakpoint = this.debugInfo.breakpoints.find(
         bp => bp.line === this.debugInfo.currentLine && bp.enabled
       );
-      
+
       if (breakpoint) {
         break;
       }
-      
+
       // Check for program end
       if (this.processor.getState().memory[this.processor.getState().registers.PC] === 0) {
         break;
       }
     }
-    
+
     return result;
   }
 
   // Set a breakpoint
   setBreakpoint(line: number): void {
     const existing = this.debugInfo.breakpoints.find(bp => bp.line === line);
-    
+
     if (existing) {
       existing.enabled = true;
     } else {
@@ -175,7 +175,7 @@ export class MIC1Service {
   // Toggle a breakpoint
   toggleBreakpoint(line: number): void {
     const existing = this.debugInfo.breakpoints.find(bp => bp.line === line);
-    
+
     if (existing) {
       existing.enabled = !existing.enabled;
     } else {
@@ -202,18 +202,18 @@ export class MIC1Service {
   // Get memory dump
   getMemoryDump(startAddress: number, length: number): number[] {
     const dump: number[] = [];
-    
+
     for (let i = 0; i < length; i++) {
       dump.push(this.processor.getMemory(startAddress + i));
     }
-    
+
     return dump;
   }
 
   // Convert program to binary representation
   programToBinary(program: Program): string[] {
     const binaryInstructions: string[] = [];
-    
+
     for (const instruction of program.instructions) {
       try {
         const { instruction: inst, operand } = parseInstruction(instruction);
@@ -223,7 +223,7 @@ export class MIC1Service {
         binaryInstructions.push('ERROR');
       }
     }
-    
+
     return binaryInstructions;
   }
 
@@ -231,7 +231,7 @@ export class MIC1Service {
   getStateReport(): string {
     const state = this.processor.getState();
     const report: string[] = [];
-    
+
     report.push('=== MIC-1 Processor State ===');
     report.push(`Cycle Count: ${state.cycleCount}`);
     report.push(`Running: ${state.running}`);
@@ -242,11 +242,11 @@ export class MIC1Service {
     report.push(`  SP: ${state.registers.SP}`);
     report.push(`  IR: 0x${state.registers.IR.toString(16).padStart(4, '0')}`);
     report.push('');
-    
+
     if (state.lastInstruction) {
       report.push(`Last Instruction: ${state.lastInstruction.opcode} ${state.lastInstruction.operand || ''}`);
     }
-    
+
     return report.join('\n');
   }
-} 
+}
