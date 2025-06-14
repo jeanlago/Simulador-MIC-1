@@ -1,0 +1,19 @@
+# Simple Addition Example
+# This program demonstrates basic arithmetic operations
+# Result: AC = 10 + 5 = 15
+
+# Load constant 10 into accumulator
+LOCO 10
+
+# Store it at memory address 100
+STOD 100
+
+# Load constant 5 into accumulator
+LOCO 5
+
+# Add the value at address 100 to accumulator
+# AC = 5 + 10 = 15
+ADDD 100
+
+# Store result at address 101
+STOD 101 

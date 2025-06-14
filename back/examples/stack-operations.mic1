@@ -1,0 +1,34 @@
+# Stack Operations and Subroutine Example
+# Demonstrates PUSH, POP, CALL, and RETN instructions
+
+# Main program starts here
+LOCO 10
+PUSH        # Push 10 onto stack
+
+LOCO 20
+PUSH        # Push 20 onto stack
+
+# Call subroutine at address 10
+CALL 10     # This pushes return address and jumps to 10
+
+# After return, result is in AC
+STOD 300    # Store result at address 300
+
+# Clean up stack
+POP         # Remove remaining value from stack
+
+# End of main program
+JUMP 20     # Jump to halt
+
+# Subroutine at address 10
+# This subroutine adds the top two stack values
+POP         # Pop first value into AC (20)
+STOD 301    # Temporarily store it
+
+POP         # Pop second value into AC (10)
+ADDD 301    # Add the first value (AC = 10 + 20 = 30)
+
+RETN        # Return to caller with result in AC
+
+# Halt (address 20)
+# Program ends here 

@@ -1,0 +1,34 @@
+# Loop Counter Example
+# Counts down from 5 to 0
+# Demonstrates conditional jumps and loops
+
+# Initialize counter to 5
+LOCO 5
+STOD 200    # Store counter at address 200
+
+# Initialize sum to 0
+LOCO 0
+STOD 201    # Store sum at address 201
+
+# Loop starts here (address 4)
+LODD 200    # Load counter
+JZER 12     # If counter is zero, jump to end (address 12)
+
+# Add counter to sum
+LODD 201    # Load current sum
+ADDD 200    # Add counter value
+STOD 201    # Store new sum
+
+# Decrement counter
+LODD 200    # Load counter
+SUBD 202    # Subtract 1 (stored at address 202)
+STOD 200    # Store decremented counter
+
+# Jump back to loop start
+JUMP 4
+
+# End of program (address 12)
+# Result: Sum = 5 + 4 + 3 + 2 + 1 = 15 (stored at address 201)
+
+# Data section
+.data 202 1  # Constant 1 for decrementing 

@@ -1,0 +1,490 @@
+{
+  "info": {
+    "name": "MIC-1 Processor Backend API",
+    "description": "Complete API collection for the MIC-1 processor backend simulator",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "mic1-processor-api",
+    "version": {
+      "major": 1,
+      "minor": 0,
+      "patch": 0
+    }
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "sessionId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health Check",
+      "item": [
+        {
+          "name": "Get Health Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            },
+            "description": "Check the health status of the MIC-1 processor backend service"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Session Management",
+      "item": [
+        {
+          "name": "Create Session",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.success && response.sessionId) {",
+                  "        pm.collectionVariables.set('sessionId', response.sessionId);",
+                  "        console.log('Session ID set to:', response.sessionId);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/mic1/session",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "mic1", "session"]
+            },
+            "description": "Create a new MIC-1 processor session"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Program Operations",
+      "item": [
+        {
+          "name": "Parse Program",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sessionId\": \"{{sessionId}}\",\n  \"program\": [\n    \"LOCO 10\",\n    \"STOD 100\",\n    \"LOCO 5\",\n    \"ADDD 100\",\n    \"STOD 101\",\n    \"HALT\"\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/mic1/parse",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "mic1", "parse"]
+            },
+            "description": "Parse and validate a MIC-1 assembly program"
+          },
+          "response": []
+        },
+        {
+          "name": "Load Program",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sessionId\": \"{{sessionId}}\",\n  \"program\": {\n    \"instructions\": [\n      \"LOCO 10\",\n      \"STOD 100\",\n      \"LOCO 5\",\n      \"ADDD 100\",\n      \"STOD 101\",\n      \"HALT\"\n    ]\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/mic1/load",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "mic1", "load"]
+            },
+            "description": "Load a program into the MIC-1 processor memory"
+          },
+          "response": []
+        },
+        {
+          "name": "Execute Program",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sessionId\": \"{{sessionId}}\",\n  \"stepMode\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/mic1/execute",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "mic1", "execute"]
+            },
+            "description": "Execute the loaded program"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Execution Control",
+      "item": [
+        {
+          "name": "Step Execution",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sessionId\": \"{{sessionId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/mic1/step",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "mic1", "step"]
+            },
+            "description": "Execute a single instruction"
+          },
+          "response": []
+        },
+        {
+          "name": "Continue Execution",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sessionId\": \"{{sessionId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/mic1/continue",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "mic1", "continue"]
+            },
+            "description": "Continue execution from current state"
+          },
+          "response": []
+        },
+        {
+          "name": "Reset Processor",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sessionId\": \"{{sessionId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/mic1/reset",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "mic1", "reset"]
+            },
+            "description": "Reset the processor to initial state"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "State and Memory",
+      "item": [
+        {
+          "name": "Get Processor State",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/mic1/state/{{sessionId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "mic1", "state", "{{sessionId}}"]
+            },
+            "description": "Get current processor state including registers and debug info"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Memory Dump",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/mic1/memory/{{sessionId}}?startAddress=0&length=16",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "mic1", "memory", "{{sessionId}}"],
+              "query": [
+                {
+                  "key": "startAddress",
+                  "value": "0"
+                },
+                {
+                  "key": "length",
+                  "value": "16"
+                }
+              ]
+            },
+            "description": "Get memory dump from specified address"
+          },
+          "response": []
+        },
+        {
+          "name": "Get State Report",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/mic1/report/{{sessionId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "mic1", "report", "{{sessionId}}"]
+            },
+            "description": "Get detailed text report of processor state"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Debugging",
+      "item": [
+        {
+          "name": "Set Breakpoint",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sessionId\": \"{{sessionId}}\",\n  \"line\": 3\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/mic1/breakpoint/set",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "mic1", "breakpoint", "set"]
+            },
+            "description": "Set a breakpoint at specified line number"
+          },
+          "response": []
+        },
+        {
+          "name": "Remove Breakpoint",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sessionId\": \"{{sessionId}}\",\n  \"line\": 3\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/mic1/breakpoint/remove",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "mic1", "breakpoint", "remove"]
+            },
+            "description": "Remove breakpoint from specified line number"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Utilities",
+      "item": [
+        {
+          "name": "Convert to Binary",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sessionId\": \"{{sessionId}}\",\n  \"program\": [\n    \"LOCO 10\",\n    \"STOD 100\",\n    \"HALT\"\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/mic1/binary",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "mic1", "binary"]
+            },
+            "description": "Convert MIC-1 assembly program to binary representation"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Example Workflows",
+      "item": [
+        {
+          "name": "Complete Simple Program Workflow",
+          "item": [
+            {
+              "name": "1. Create Session",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "if (pm.response.code === 200) {",
+                      "    const response = pm.response.json();",
+                      "    if (response.success && response.sessionId) {",
+                      "        pm.collectionVariables.set('sessionId', response.sessionId);",
+                      "    }",
+                      "}"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/mic1/session",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "mic1", "session"]
+                }
+              }
+            },
+            {
+              "name": "2. Load Simple Addition Program",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"sessionId\": \"{{sessionId}}\",\n  \"program\": {\n    \"instructions\": [\n      \"LOCO 5\",\n      \"STOD 100\",\n      \"LOCO 3\",\n      \"ADDD 100\",\n      \"STOD 101\",\n      \"HALT\"\n    ]\n  }\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/mic1/load",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "mic1", "load"]
+                }
+              }
+            },
+            {
+              "name": "3. Execute Program",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"sessionId\": \"{{sessionId}}\",\n  \"stepMode\": false\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/mic1/execute",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "mic1", "execute"]
+                }
+              }
+            },
+            {
+              "name": "4. Get Final State",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/mic1/state/{{sessionId}}",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "mic1", "state", "{{sessionId}}"]
+                }
+              }
+            },
+            {
+              "name": "5. Check Memory Results",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/mic1/memory/{{sessionId}}?startAddress=100&length=5",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "mic1", "memory", "{{sessionId}}"],
+                  "query": [
+                    {
+                      "key": "startAddress",
+                      "value": "100"
+                    },
+                    {
+                      "key": "length",
+                      "value": "5"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+} 
