@@ -76,9 +76,6 @@ app.use((req, res) => {
   });
 });
 
-setInterval(() => {
-  mic1Controller.cleanupSessions();
-}, 30 * 60 * 1000);
 
 app.listen(PORT, () => {
   console.log(`MIC-1 Processor Backend Server running on port ${PORT}`);
@@ -86,4 +83,5 @@ app.listen(PORT, () => {
   console.log(`API Base URL: http://localhost:${PORT}/api/mic1`);
   console.log(`API Documentation: http://localhost:${PORT}/api-docs`);
   console.log(`Swagger JSON: http://localhost:${PORT}/api-docs.json`);
+  console.log('[MIC-1 BACK] inicializado às', new Date().toLocaleTimeString());
 });

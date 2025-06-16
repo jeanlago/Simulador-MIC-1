@@ -52,6 +52,22 @@ export const executeProgram = async (sessionId: string): Promise<void> => {
 };
 
 
-export const stepExecution = async (sessionId: string): Promise<void> => {
-  await axios.post(`${BASE_URL}/step`, { sessionId });
+export const stepExecution = async (
+  sessionId: string
+): Promise<{ success: boolean; error?: string }> => {
+  const { data } = await axios.post(`${BASE_URL}/step`, { sessionId });
+  return data;                 // data = { success, state?, error? }
+};
+
+export interface HistoryEntry {
+  cycle: number;
+  micro: string;
+  bus:  { from: string; to: string };
+}
+
+export const getHistory = async (sessionId: string) => {
+  const { data } = await axios.get<{ success:boolean; history: HistoryEntry[] }>(
+    `${BASE_URL}/history/${sessionId}`
+  );
+  return data.history;
 };

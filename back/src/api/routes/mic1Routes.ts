@@ -1,31 +1,27 @@
 import { Router } from 'express';
-import { mic1Controller } from '../controllers/mic1Controller';
+import { mic1Controller as c } from '../controllers/mic1Controller';
 
-const router = Router();
+const r = Router();
 
+/* sessão */
+r.post('/session', c.createSession);
 
-router.post('/session', mic1Controller.createSession);
+/* carregamento / execução */
+r.post('/load',     c.loadProgram);
+r.post('/execute',  c.execute);
+r.post('/step',     c.step);
+r.post('/continue', c.continue);
+r.post('/reset',    c.reset);
 
+/* consultas */
+r.get('/state/:sessionId',    c.getState);
+r.get('/memory/:sessionId',   c.getMemory);
+r.get('/report/:sessionId',   c.getStateReport);
+r.get('/history/:sessionId',  c.getHistory);
 
-router.post('/parse', mic1Controller.parseProgram);
-router.post('/load', mic1Controller.loadProgram);
-router.post('/execute', mic1Controller.execute);
+/* ferramentas */
+r.post('/breakpoint/set',     c.setBreakpoint);
+r.post('/breakpoint/remove',  c.removeBreakpoint);
+r.post('/binary',             c.toBinary);
 
-
-router.post('/step', mic1Controller.step);
-router.post('/continue', mic1Controller.continue);
-router.post('/reset', mic1Controller.reset);
-
-
-router.get('/state/:sessionId', mic1Controller.getState);
-router.get('/memory/:sessionId', mic1Controller.getMemory);
-router.get('/report/:sessionId', mic1Controller.getStateReport);
-
-
-router.post('/breakpoint/set', mic1Controller.setBreakpoint);
-router.post('/breakpoint/remove', mic1Controller.removeBreakpoint);
-
-
-router.post('/binary', mic1Controller.toBinary);
-
-export default router;
+export default r;

@@ -1,28 +1,28 @@
 
 export enum Instruction {
-  LODD = 'LODD', 
-  STOD = 'STOD', 
-  ADDD = 'ADDD', 
-  SUBD = 'SUBD', 
-  JPOS = 'JPOS', 
-  JZER = 'JZER', 
-  JUMP = 'JUMP', 
-  LOCO = 'LOCO', 
-  LODL = 'LODL', 
-  STOL = 'STOL', 
-  ADDL = 'ADDL', 
-  SUBL = 'SUBL', 
-  JNEG = 'JNEG', 
-  JNZE = 'JNZE', 
-  CALL = 'CALL', 
-  PSHI = 'PSHI', 
-  POPI = 'POPI', 
-  PUSH = 'PUSH', 
-  POP = 'POP',   
-  RETN = 'RETN', 
-  SWAP = 'SWAP', 
-  INSP = 'INSP', 
-  DESP = 'DESP', 
+  LODD = 'LODD',
+  STOD = 'STOD',
+  ADDD = 'ADDD',
+  SUBD = 'SUBD',
+  JPOS = 'JPOS',
+  JZER = 'JZER',
+  JUMP = 'JUMP',
+  LOCO = 'LOCO',
+  LODL = 'LODL',
+  STOL = 'STOL',
+  ADDL = 'ADDL',
+  SUBL = 'SUBL',
+  JNEG = 'JNEG',
+  JNZE = 'JNZE',
+  CALL = 'CALL',
+  PSHI = 'PSHI',
+  POPI = 'POPI',
+  PUSH = 'PUSH',
+  POP = 'POP',
+  RETN = 'RETN',
+  SWAP = 'SWAP',
+  INSP = 'INSP',
+  DESP = 'DESP',
 }
 
 
@@ -34,13 +34,13 @@ export interface MIC1Instruction {
 
 
 export interface Registers {
-  PC: number;  
-  AC: number;  
-  SP: number;  
-  IR: number;  
-  TIR: number; 
-  MAR: number; 
-  MBR: number; 
+  PC: number;
+  AC: number;
+  SP: number;
+  IR: number;
+  TIR: number;
+  MAR: number;
+  MBR: number;
 }
 
 
@@ -91,4 +91,10 @@ export interface DebugInfo {
   currentLine: number;
   breakpoints: Breakpoint[];
   stepMode: boolean;
-} 
+}
+
+export interface HistoryEntry {
+  cycle: number;                  // contador global
+  micro: string;                  // "LODD 100"
+  bus: { from: string; to: string };
+}

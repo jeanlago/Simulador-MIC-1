@@ -1,10 +1,11 @@
 import { MIC1Processor } from './processor';
-import { 
-  Program, 
-  ExecutionResult, 
+import { HistoryEntry } from '../types/mic1.types';
+import {
+  Program,
+  ExecutionResult,
   ProcessorState,
   DebugInfo,
-  Breakpoint 
+  Breakpoint
 } from '../types/mic1.types';
 import { parseInstruction, encodeInstruction } from '../utils/binary.utils';
 
@@ -76,24 +77,24 @@ export class MIC1Service {
     try {
       this.processor.reset();
       this.programLines = program.instructions;
-      
+
       // Load instructions
       this.processor.loadProgram(program.instructions);
-      
+
       // Load data into memory
       if (program.data) {
         for (const [address, value] of Object.entries(program.data)) {
           this.processor.setMemory(Number(address), value);
         }
       }
-      
+
       // Reset debug info
       this.debugInfo = {
         currentLine: 0,
         breakpoints: [],
         stepMode: false,
       };
-      
+
       return { success: true };
     } catch (error) {
       return {
@@ -106,7 +107,7 @@ export class MIC1Service {
   // Execute the loaded program
   execute(stepMode: boolean = false): ExecutionResult {
     this.debugInfo.stepMode = stepMode;
-    
+
     if (stepMode) {
       return this.processor.step();
     } else {
@@ -115,23 +116,29 @@ export class MIC1Service {
   }
 
   // Step through one instruction
+// MIC1Service.ts ---------------------------------------------
   step(): ExecutionResult {
-    const result = this.processor.step();
-    
-    if (result.success) {
-      this.debugInfo.currentLine++;
+    const result = this.processor.step();   // 1 micro-passo (na prática 1 macro)
+
+    // se IR == 0, acabou o programa → só repassa pro front
+    if (!result.success && result.error === 'Fim do programa') {
+      return result;
     }
-    
+
+    // avançou 1 macro-instrução “real”
+    this.debugInfo.currentLine++;
     return result;
   }
+
+
 
   // Continue execution until breakpoint or completion
   continue(): ExecutionResult {
     let result: ExecutionResult = { success: true, state: this.processor.getState() };
-    
+
     while (result.success) {
       result = this.processor.step();
-      
+
       if (!result.success) {
         break;
       }
@@ -248,5 +255,9 @@ export class MIC1Service {
     }
 
     return report.join('\n');
+  }
+
+  getHistory(): HistoryEntry[] {
+    return this.processor.getHistory();
   }
 }

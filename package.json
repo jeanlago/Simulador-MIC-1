@@ -7,6 +7,10 @@
     "@types/swagger-ui-express": "^4.1.8"
   },
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@mui/icons-material": "^7.1.1",
+    "@mui/material": "^7.1.1",
     "cors": "^2.8.5",
     "express": "^5.1.0",
     "swagger-jsdoc": "^6.2.8",
