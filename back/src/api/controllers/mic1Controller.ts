@@ -85,7 +85,25 @@ export const mic1Controller = {
   }) as RequestHandler,
 
   /* breakpoints / binário mantêm-se iguais ao que você já usava */
-  setBreakpoint   : ((req,res)=>res.json({success:true})) as RequestHandler,
-  removeBreakpoint: ((req,res)=>res.json({success:true})) as RequestHandler,
-  toBinary        : ((req,res)=>res.json({success:true})) as RequestHandler,
+  setBreakpoint: ((req, res) => {
+    const { sessionId, line } = req.body;
+    if (!sessionId || line == null) return miss(res, 'sessionId or line');
+    svc(sessionId).setBreakpoint(+line);
+    res.json({ success:true });
+  }) as RequestHandler,
+
+  removeBreakpoint: ((req, res) => {
+  const { sessionId, line } = req.body;
+  if (!sessionId || line == null) return miss(res, 'sessionId or line');
+  svc(sessionId).removeBreakpoint(+line);
+  res.json({ success:true });
+}) as RequestHandler,
+
+
+  toBinary: ((req, res) => {
+    const { program } = req.body;           // { instructions: [...] }
+    if (!program) return miss(res, 'program');
+    const bin = new MIC1Service().programToBinary(program);
+    res.json({ success:true, binary:bin });
+  }) as RequestHandler,
 };

@@ -117,16 +117,9 @@ export class MIC1Service {
 
   // Step through one instruction
 // MIC1Service.ts ---------------------------------------------
-  step(): ExecutionResult {
-    const result = this.processor.step();   // 1 micro-passo (na prática 1 macro)
-
-    // se IR == 0, acabou o programa → só repassa pro front
-    if (!result.success && result.error === 'Fim do programa') {
-      return result;
-    }
-
-    // avançou 1 macro-instrução “real”
-    this.debugInfo.currentLine++;
+ step(): ExecutionResult {
+    const result = this.processor.step();
+    if (result.success) this.debugInfo.currentLine++;
     return result;
   }
 
@@ -166,18 +159,15 @@ export class MIC1Service {
   // Set a breakpoint
   setBreakpoint(line: number): void {
     const existing = this.debugInfo.breakpoints.find(bp => bp.line === line);
-
-    if (existing) {
-      existing.enabled = true;
-    } else {
-      this.debugInfo.breakpoints.push({ line, enabled: true });
-    }
+    if (existing) existing.enabled = true;
+    else this.debugInfo.breakpoints.push({ line, enabled: true });
   }
 
   // Remove a breakpoint
   removeBreakpoint(line: number): void {
     this.debugInfo.breakpoints = this.debugInfo.breakpoints.filter(bp => bp.line !== line);
   }
+
 
   // Toggle a breakpoint
   toggleBreakpoint(line: number): void {
@@ -217,7 +207,6 @@ export class MIC1Service {
     return dump;
   }
 
-  // Convert program to binary representation
   programToBinary(program: Program): string[] {
     const binaryInstructions: string[] = [];
 
@@ -234,7 +223,7 @@ export class MIC1Service {
     return binaryInstructions;
   }
 
-  // Get a formatted state report
+
   getStateReport(): string {
     const state = this.processor.getState();
     const report: string[] = [];
