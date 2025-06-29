@@ -62,7 +62,7 @@ export interface ProcessorState {
   lastMicroInstruction: string;
 
   /* --- barramento (opcional) --- */
-  bus?: { from: string; to: string };     // ← só UMA vez, sem duplicar
+  bus: { from: string; to: string };     // ← só UMA vez, sem duplicar
 }
 
 
