@@ -9,10 +9,15 @@ import {
   HistoryEntry,
 } from '../types/mic1.types';
 
+
 export class MIC1Processor {
   /* ---------------------------------------------------------------- */
   private state: ProcessorState;
   private history: HistoryEntry[] = [];
+  private sign12(x: number) {
+    return (x & 0x800) ? (x | 0xFFFFF000) : x;
+  }
+
 
   private static readonly MEMORY_SIZE = 4096;
   private static readonly STACK_BASE = 4095;
@@ -121,7 +126,15 @@ export class MIC1Processor {
       0xe: Instruction.CALL,
     };
 
-    if (opMain !== 0xf) return { opcode: mapping[opMain], operand: op12 };
+    if (opMain !== 0xF) {
+      const opcode = mapping[opMain];
+      const operand =
+        opcode === Instruction.LOCO
+          ? this.sign12(op12)   // <-- chama o método da classe
+          : op12;
+
+      return { opcode, operand };
+    }
     return this.decodeExtended(word);
   }
 
@@ -377,3 +390,7 @@ export class MIC1Processor {
     };
   }
 }
+
+/** Converte 12 bits em inteiro com sinal (-2048 .. +2047) */
+  const sign12 = (x: number): number =>
+    (x & 0x800) ? (x | 0xFFFFF000) : x;

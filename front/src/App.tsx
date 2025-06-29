@@ -44,6 +44,8 @@ export default function App() {
   const [showMicroInstruction, setShowMicroInstruction] = useState(true);
   const [showBus, setShowBus] = useState(true);
   const [programFinished, setProgramFinished] = useState(false);
+  const [isRunning, setIsRunning] = useState(false);
+
 
   // agrupado para o Drawer
   const options = {
@@ -104,6 +106,9 @@ export default function App() {
   const handleLoadAndExecute = async () => {
     if (!sessionId) return;
 
+    setIsRunning(true);
+    setProgramFinished(false);
+
     const instructions = programText
       .split('\n')
       .map(l => l.trim())
@@ -112,8 +117,10 @@ export default function App() {
     await loadProgram(sessionId, instructions);
     await executeProgram(sessionId);
     await refreshHistory();
-    setProgramFinished(false);
-    fetchState();
+    await fetchState();
+
+    setProgramFinished(true); // ← marca como finalizado
+    setIsRunning(false);
   };
 
   const handleStep = async () => {
@@ -187,7 +194,7 @@ export default function App() {
             <Button
               variant="outlined"
               onClick={handleStep}
-              disabled={!sessionId || programFinished}
+              disabled={!sessionId || programFinished|| isRunning}
             >
               Executar Passo
             </Button>
