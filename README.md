@@ -4,7 +4,7 @@ Um simulador visual do processador MIC-1 (baseado na arquitetura microprogramada
 
 Este projeto é focado em fins educacionais para estudar arquitetura de computadores e microprogramação.
 
-![Simulador_Home](https://github.com/user-attachments/assets/a7c460e4-b3ba-4f35-8209-d33aa2ccef4f) <!-- coloque um gif ou imagem do seu simulador aqui -->
+![Simulador_Working](https://github.com/user-attachments/assets/d8497add-6f1e-4092-9fe3-0c61573c3ec7)
 
 ---
 
