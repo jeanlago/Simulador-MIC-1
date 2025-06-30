@@ -4,7 +4,7 @@ Um simulador visual do processador MIC-1 (baseado na arquitetura microprogramada
 
 Este projeto é focado em fins educacionais para estudar arquitetura de computadores e microprogramação.
 
-![Simulador](https://raw.githubusercontent.com/jeanlago/Simulador-MIC-1/main/.github/images/Simulador_Working.gif) <!-- coloque um gif ou imagem do seu simulador aqui -->
+![Demo do MIC-1 Simulador](https://raw.githubusercontent.com/jeanlago/Simulador-MIC-1/main/.github/images/Simulador_Working.gif) <!-- coloque um gif ou imagem do seu simulador aqui -->
 
 ---
 
