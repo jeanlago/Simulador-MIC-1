@@ -109,21 +109,26 @@ export default function BusView({
   );
 
   const pulseLines = pulses.map(p => {
-    const visibleLen = p.len * 0.2;
+    const visibleLen = Math.max(30, p.len * 0.3); // tamanho da cobrinha
+    const gapLen = p.len * 1.5;                   // grande o suficiente para limpar totalmente
+    const overshoot = 20;                         // entra mais no bloco de destino e zera
+
     return (
       <g key={p.id}>
         <polyline
           points={p.points.map(pt => pt.join(',')).join(' ')}
           fill="none" stroke={pulseColor} strokeWidth="5"
           strokeLinecap="round"
-          strokeDasharray={`${visibleLen} ${p.len}`}
+          strokeDasharray={`${visibleLen} ${gapLen}`}
           strokeDashoffset="0"
           style={{
             animation: `move-${p.id} ${drawMs}ms linear forwards`
           }}
         />
         <style>
-          {`@keyframes move-${p.id} { to { stroke-dashoffset: -${p.len}; } }`}
+          {`@keyframes move-${p.id} {
+            to { stroke-dashoffset: -${p.len + overshoot}; }
+          }`}
         </style>
       </g>
     );
