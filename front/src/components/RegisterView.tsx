@@ -1,8 +1,5 @@
 import React from 'react';
 
-interface Props {
-  registers: Record<string, number>;
-}
 
 
 function RegisterView({ registers }: { registers: Record<string, number> }) {
