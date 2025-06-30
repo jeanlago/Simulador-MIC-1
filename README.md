@@ -1,10 +1,10 @@
-![Simulador_Home](https://github.com/user-attachments/assets/a7c460e4-b3ba-4f35-8209-d33aa2ccef4f)# MIC-1 Simulador
+# MIC-1 Simulador
 
 Um simulador visual do processador MIC-1 (baseado na arquitetura microprogramada de Maurício M. Noronha) que permite executar programas em linguagem de montagem MIC-1, visualizar registradores, memória, ALU e o fluxo do barramento em tempo real.
 
 Este projeto é focado em fins educacionais para estudar arquitetura de computadores e microprogramação.
 
-![Home](https://raw.githubusercontent.com/jeanlago/Simulador-MIC-1/main/.github/images/Simulador_Home.png) <!-- coloque um gif ou imagem do seu simulador aqui -->
+![Simulador_Home](https://github.com/user-attachments/assets/a7c460e4-b3ba-4f35-8209-d33aa2ccef4f)# MIC-1 Simulador <!-- coloque um gif ou imagem do seu simulador aqui -->
 
 ---
 
