@@ -41,3 +41,7 @@ Thumbs.db
 # Lock files (keep one or the other)
 # package-lock.json
 # yarn.lock
+
+# Arquivos .md que eu escrevi pra conseguir fazer os slides direito
+SWAGGER_MULTILANG.md
+ARQUITETURA_BACKEND.md
