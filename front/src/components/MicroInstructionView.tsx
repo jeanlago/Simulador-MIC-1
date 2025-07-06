@@ -1,21 +1,39 @@
 import React from 'react';
+import { Box, Typography, useTheme } from '@mui/material';
 
-interface MicroInstructionViewProps {
-  microInstruction: string;
+interface Props {
+  microInstruction?: string;
   enabled: boolean;
 }
 
-const MicroInstructionView: React.FC<MicroInstructionViewProps> = ({ microInstruction, enabled }) => {
+export default function MicroInstructionView({ microInstruction, enabled }: Props) {
+  const theme = useTheme();
   if (!enabled) return null;
 
-  return (
-    <div style={{ marginTop: 30 }}>
-      <h2>Última Microinstrução</h2>
-      <div style={{ fontFamily: 'monospace', backgroundColor: '#282c34', color: '#61dafb', padding: 10, borderRadius: 5 }}>
-        {microInstruction || 'Nenhuma instrução ainda.'}
-      </div>
-    </div>
-  );
-};
+  const bg = theme.palette.mode === 'dark'
+    ? theme.palette.grey[900]
+    : theme.palette.grey[100];
 
-export default MicroInstructionView;
+  return (
+    <Box mt={3}>
+      <Typography variant="subtitle1" gutterBottom>
+        Última Micro-instrução
+      </Typography>
+
+      <Box
+        sx={{
+          p: 2,
+          borderRadius: 2,
+          fontFamily: 'monospace',
+          bgcolor: bg,
+          color: theme.palette.text.primary,
+          minHeight: 40,
+          display: 'flex',
+          alignItems: 'center',
+        }}
+      >
+        {microInstruction || 'Nenhuma instrução ainda.'}
+      </Box>
+    </Box>
+  );
+}

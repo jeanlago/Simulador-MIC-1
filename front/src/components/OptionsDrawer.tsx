@@ -16,12 +16,16 @@ type Props = {
     showMicroInstruction: boolean;
     showBus: boolean;
     recordHistory: boolean;
+    fastMode: boolean;
+    didacticMode: boolean;
   };
+  isRunning: boolean;
   onToggle: (key: keyof Props['options']) => void;
   onRepeatTutorial: () => void;
 };
 
-export default function OptionsDrawer({ options, onToggle, onRepeatTutorial }: Props) {
+
+export default function OptionsDrawer({ options, isRunning, onToggle, onRepeatTutorial }: Props) {
   const [open, setOpen] = useState(false);
   const toggle = () => setOpen(!open);
 
@@ -33,6 +37,8 @@ export default function OptionsDrawer({ options, onToggle, onRepeatTutorial }: P
     { key: 'showMicroInstruction', label: 'Mostrar Microinstrução' },
     { key: 'showBus',              label: 'Mostrar Barramento' },
     { key: 'recordHistory',        label: 'Guardar Histórico' },
+    { key: 'fastMode',             label: 'Modo Rápido' },
+    { key: 'didacticMode',         label: 'Modo Didático' },
   ] as const;
 
   const handleButtonClick = (action: () => void) => {
@@ -47,31 +53,38 @@ export default function OptionsDrawer({ options, onToggle, onRepeatTutorial }: P
           <MenuIcon />
         </IconButton>
       )}
-      <Drawer anchor="left" open={open} onClose={toggle} PaperProps={{ sx: { width: 280 } }}>
+      <Drawer anchor="left" open={open} onClose={toggle} PaperProps={{ sx: { width: 280, display: 'flex', flexDirection: 'column' } }}>
         <Box sx={{ display:'flex', alignItems:'center', justifyContent: 'space-between', height:56, pl:2, pr: 1 }}>
           <Typography variant="h6">Opções</Typography>
           <IconButton onClick={toggle}><CloseIcon /></IconButton>
         </Box>
         <Divider />
-        <List dense>
-          <ListItemButton onClick={() => handleButtonClick(onRepeatTutorial)}>
-            <ListItemIcon sx={{ minWidth: 40 }}><HelpOutlineIcon /></ListItemIcon>
-            <ListItemText primary="Repetir Tutorial" />
-          </ListItemButton>
-        </List>
+        <Box sx={{ flex: 1, overflowY: 'auto' }}>
+          <List dense>
+            {items.map(({ key, label }) => {
+              const disable = isRunning && (key === 'fastMode' || key === 'didacticMode');
+              return (
+                <ListItem key={key} disablePadding>
+                  <ListItemButton onClick={() => onToggle(key)} disabled={disable}>
+                    <ListItemIcon sx={{ minWidth: 40 }}>
+                      <Checkbox edge="start" checked={options[key]} disableRipple disabled={disable} />
+                    </ListItemIcon>
+                    <ListItemText primary={label} />
+                  </ListItemButton>
+                </ListItem>
+              );
+            })}
+          </List>
+        </Box>
         <Divider />
-        <List dense>
-          {items.map(({ key, label }) => (
-            <ListItem key={key} disablePadding>
-              <ListItemButton onClick={() => onToggle(key)}>
-                <ListItemIcon sx={{ minWidth: 40 }}>
-                  <Checkbox edge="start" checked={options[key]} disableRipple />
-                </ListItemIcon>
-                <ListItemText primary={label} />
-              </ListItemButton>
-            </ListItem>
-          ))}
-        </List>
+        <Box>
+          <List dense>
+            <ListItemButton onClick={() => handleButtonClick(onRepeatTutorial)}>
+              <ListItemIcon sx={{ minWidth: 40 }}><HelpOutlineIcon /></ListItemIcon>
+              <ListItemText primary="Repetir Tutorial" />
+            </ListItemButton>
+          </List>
+        </Box>
       </Drawer>
     </>
   );
