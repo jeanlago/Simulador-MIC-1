@@ -227,26 +227,7 @@ const swaggerDefinition = {
         },
         required: ['success'],
       },
-      ParseResult: {
-        type: 'object',
-        properties: {
-          success: {
-            type: 'boolean',
-            description: 'Whether parsing was successful',
-          },
-          errors: {
-            type: 'array',
-            items: {
-              type: 'string',
-            },
-            description: 'List of parsing errors',
-          },
-          program: {
-            $ref: '#/components/schemas/Program',
-          },
-        },
-        required: ['success'],
-      },
+
       MemoryDump: {
         type: 'object',
         properties: {
@@ -413,60 +394,7 @@ const swaggerDefinition = {
         },
       },
     },
-    '/api/mic1/parse': {
-      post: {
-        tags: ['Program Operations'],
-        summary: 'Parse and validate a program',
-        description: 'Parses a MIC-1 assembly program and validates its syntax',
-        requestBody: {
-          required: true,
-          content: {
-            'application/json': {
-              schema: {
-                type: 'object',
-                properties: {
-                  sessionId: {
-                    type: 'string',
-                    description: 'Session identifier',
-                  },
-                  program: {
-                    type: 'array',
-                    items: {
-                      type: 'string',
-                    },
-                    description: 'Array of assembly instructions',
-                    example: ['LOCO 10', 'STOD 100', 'HALT'],
-                  },
-                },
-                required: ['sessionId', 'program'],
-              },
-            },
-          },
-        },
-        responses: {
-          '200': {
-            description: 'Program parsed successfully',
-            content: {
-              'application/json': {
-                schema: {
-                  $ref: '#/components/schemas/ParseResult',
-                },
-              },
-            },
-          },
-          '400': {
-            description: 'Missing required parameters',
-            content: {
-              'application/json': {
-                schema: {
-                  $ref: '#/components/schemas/Error',
-                },
-              },
-            },
-          },
-        },
-      },
-    },
+
     '/api/mic1/load': {
       post: {
         tags: ['Program Operations'],
@@ -867,6 +795,71 @@ const swaggerDefinition = {
         },
       },
     },
+    '/api/mic1/history/{sessionId}': {
+      get: {
+        tags: ['State and Memory'],
+        summary: 'Get execution history',
+        description: 'Returns the execution history for the specified session',
+        parameters: [
+          {
+            name: 'sessionId',
+            in: 'path',
+            required: true,
+            schema: {
+              type: 'string',
+            },
+            description: 'Session identifier',
+          },
+        ],
+        responses: {
+          '200': {
+            description: 'Execution history retrieved successfully',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: {
+                      type: 'boolean',
+                    },
+                    history: {
+                      type: 'array',
+                      items: {
+                        type: 'object',
+                        properties: {
+                          cycle: {
+                            type: 'integer',
+                            description: 'Execution cycle number',
+                          },
+                          instruction: {
+                            type: 'string',
+                            description: 'Executed instruction',
+                          },
+                          state: {
+                            $ref: '#/components/schemas/ProcessorState',
+                          },
+                        },
+                      },
+                      description: 'Array of execution history entries',
+                    },
+                  },
+                },
+              },
+            },
+          },
+          '400': {
+            description: 'Missing session ID',
+            content: {
+              'application/json': {
+                schema: {
+                  $ref: '#/components/schemas/Error',
+                },
+              },
+            },
+          },
+        },
+      },
+    },
     '/api/mic1/breakpoint/set': {
       post: {
         tags: ['Debugging'],
@@ -1001,19 +994,11 @@ const swaggerDefinition = {
               schema: {
                 type: 'object',
                 properties: {
-                  sessionId: {
-                    type: 'string',
-                    description: 'Session identifier',
-                  },
                   program: {
-                    type: 'array',
-                    items: {
-                      type: 'string',
-                    },
-                    description: 'Array of assembly instructions',
+                    $ref: '#/components/schemas/Program',
                   },
                 },
-                required: ['sessionId', 'program'],
+                required: ['program'],
               },
             },
           },
