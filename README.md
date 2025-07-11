@@ -38,3 +38,8 @@ Este projeto é focado em fins educacionais para estudar arquitetura de computad
 git clone https://github.com/jeanlago/Simulador-Mic-1.git
 cd Simulador-Mic-1/front
 npm install
+npm dev
+#Em outro terminal
+cd Simulador-Mic-1/back
+yarn install
+yarn dev
